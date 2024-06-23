@@ -276,6 +276,69 @@ class PlayerProjectile {
 		return p.VY;
 	}
 }
+
+class Background {
+			
+	private double [] X;
+	private double [] Y;
+	private double speed;
+	private double count;
+
+	public Background(int X, int Y, double speed, double count){
+		this.X = new double [X];
+		this.Y = new double [Y];
+		this.speed = speed;
+		this.count = count;
+		for(int i = 0; i < this.X.length; i++){
+			
+			this.X[i] = Math.random() * GameLib.WIDTH;
+			this.Y[i] = Math.random() * GameLib.HEIGHT;
+		}
+	}
+	
+	public void draw(Long delta, Color cor, int size){    //metodo pra desenhar o background
+		GameLib.setColor(cor);
+			count += speed * delta;
+			
+			for(int i = 0; i < X.length; i++){
+				
+				GameLib.fillRect(X[i], (Y[i] + count) % GameLib.HEIGHT, size, size);
+			}
+	}
+
+	/*Getters e Setters*/
+	public double[] get_X() {
+		return X;
+	}
+	public double[] get_Y() {
+		return Y;
+	}
+	public double get_count() {
+		return count;
+	}
+	public double get_speed() {
+		return speed;
+	}
+	public void set_X(double[] X) {
+		this.X = X;
+	}
+	public void set_Y(double[] Y) {
+		this.Y = Y;
+	}
+	public void set_count(double count) {
+		this.count = count;
+	}
+	public void set_speed(double speed) {
+		this.speed = speed;
+	}
+} 
+
+class Estrela extends Background {
+	public Estrela(int X, int Y, double speed, double count) {
+		super(X, Y, speed, count);
+	}
+}
+
 public class Main {
 	
 	/* Constantes relacionadas aos estados que os elementos   */
@@ -378,37 +441,14 @@ public class Main {
 		double [] e_projectile_VY = new double[200];			// velocidade no eixo y
 		double e_projectile_radius = 2.0;						// raio (tamanho dos projéteis inimigos)
 		
-		/* estrelas que formam o fundo de primeiro plano */
-		
-		double [] background1_X = new double[20];
-		double [] background1_Y = new double[20];
-		double background1_speed = 0.070;
-		double background1_count = 0.0;
-		
-		/* estrelas que formam o fundo de segundo plano */
-		
-		double [] background2_X = new double[50];
-		double [] background2_Y = new double[50];
-		double background2_speed = 0.045;
-		double background2_count = 0.0;
+		Estrela estrela1 = new Estrela(20, 20, 0.070, 0.0);
+		Estrela estrela2 = new Estrela(50, 50, 0.045, 0.0);
 		
 		/* inicializações */
 		
 		for(int i = 0; i < e_projectile_states.length; i++) e_projectile_states[i] = INACTIVE;
 		for(int i = 0; i < enemy1.getStates().length; i++) enemy1.getStates()[i] = INACTIVE;
 		for(int i = 0; i < enemy2_states.length; i++) enemy2_states[i] = INACTIVE;
-		
-		for(int i = 0; i < background1_X.length; i++){
-			
-			background1_X[i] = Math.random() * GameLib.WIDTH;
-			background1_Y[i] = Math.random() * GameLib.HEIGHT;
-		}
-		
-		for(int i = 0; i < background2_X.length; i++){
-			
-			background2_X[i] = Math.random() * GameLib.WIDTH;
-			background2_Y[i] = Math.random() * GameLib.HEIGHT;
-		}
 						
 		/* iniciado interface gráfica */
 		
@@ -747,23 +787,8 @@ public class Main {
 			
 			/* desenhando plano fundo distante */
 			
-			GameLib.setColor(Color.DARK_GRAY);
-			background2_count += background2_speed * delta;
-			
-			for(int i = 0; i < background2_X.length; i++){
-				
-				GameLib.fillRect(background2_X[i], (background2_Y[i] + background2_count) % GameLib.HEIGHT, 2, 2);
-			}
-			
-			/* desenhando plano de fundo próximo */
-			
-			GameLib.setColor(Color.GRAY);
-			background1_count += background1_speed * delta;
-			
-			for(int i = 0; i < background1_X.length; i++){
-				
-				GameLib.fillRect(background1_X[i], (background1_Y[i] + background1_count) % GameLib.HEIGHT, 3, 3);
-			}
+			estrela1.draw(delta, Color.GRAY, 3);
+			estrela2.draw(delta, Color.DARK_GRAY, 2);
 						
 			/* desenhando player */
 			
