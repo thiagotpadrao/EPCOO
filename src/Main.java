@@ -113,6 +113,129 @@ class Player {
 	}
 }
 
+class Enemy {
+	private int [] states;						// estados
+	private double [] X;					// coordenadas x
+	private double [] Y;					// coordenadas y
+	private double [] V;					// velocidades
+	private double [] angle;				// ângulos (indicam direção do movimento)
+	private double [] RV;					// velocidades de rotação
+	private double [] explosion_start;		// instantes dos inícios das explosões
+	private double [] explosion_end;		// instantes dos finais da explosões			// instantes do próximo tiro
+	private double radius;								// raio (tamanho do inimigo 1)
+	private long nextEnemy;					// instante em que um novo inimigo 1 deve aparecer
+
+	Enemy(int [] states, double [] X, double [] Y, double [] V, double [] angle, double [] RV, double [] explosion_start, double [] explosion_end, double radius, long nextEnemy) {
+		this.states = states;						// estados
+		this.X = X;					// coordenadas x
+		this.Y = Y;					// coordenadas y
+		this.V = V;					// velocidades
+		this.angle = angle;				// ângulos (indicam direção do movimento)
+		this.RV = RV;					// velocidades de rotação
+		this.explosion_start = explosion_start;		// instantes dos inícios das explosões
+		this.explosion_end = explosion_end;		// instantes dos finais da explosões			// instantes do próximo tiro
+		this.radius = radius;								// raio (tamanho do inimigo 1)
+		this.nextEnemy = nextEnemy;	
+	}
+
+	public int[] getStates() {
+		return states;
+	}
+	public double[] getX() {
+		return X;
+	}
+	public double[] getY() {
+		return Y;
+	}
+	public double[] getV() {
+		return V;
+	}
+	public double[] getAngle() {
+		return angle;
+	}
+	public double[] getRV() {
+		return RV;
+	}
+	public double[] getExplosion_start() {
+		return explosion_start;
+	}
+	public double[] getExplosion_end() {
+		return explosion_end;
+	}
+	public double getRadius() {
+		return radius;
+	}
+	public long getNextEnemy() {
+		return nextEnemy;
+	}
+	public void setNextEnemy(long nextEnemy) {
+		this.nextEnemy = nextEnemy;
+	}
+}
+
+class Enemy1 {
+	private Enemy e;
+	private long [] nextShoot;
+
+	Enemy1(int [] states, double [] X, double [] Y, double [] V, double [] angle, double [] RV, double [] explosion_start, double [] explosion_end, double radius, long nextEnemy, long [] nextShoot) {
+		this.e = new Enemy(states, X, Y, V, angle, RV, explosion_start, explosion_end, radius, nextEnemy);
+		this.nextShoot = nextShoot;
+	}
+
+	public int[] getStates() {
+		return e.getStates();
+	}
+	public double[] getX() {
+		return e.getX();
+	}
+	public double[] getY() {
+		return e.getY();
+	}
+	public double[] getV() {
+		return e.getV();
+	}
+	public double[] getAngle() {
+		return e.getAngle();
+	}
+	public double[] getRV() {
+		return e.getRV();
+	}
+	public double[] getExplosion_start() {
+		return e.getExplosion_start();
+	}
+	public double[] getExplosion_end() {
+		return e.getExplosion_end();
+	}
+	public double getRadius() {
+		return e.getRadius();
+	}
+	public long getNextEnemy() {
+		return e.getNextEnemy();
+	}
+	public long[] getNextShoot() {
+		return nextShoot;
+	}
+
+	public void throwNew(long currentTime) {
+		if(currentTime > e.getNextEnemy()){
+				
+			int free = Main.findFreeIndex(this.getStates());
+							
+			if(free < this.getStates().length){
+				
+				this.getX()[free] = Math.random() * (GameLib.WIDTH - 20.0) + 10.0;
+				this.getY()[free] = -10.0;
+				this.getV()[free] = 0.20 + Math.random() * 0.15;
+				this.getAngle()[free] = 3 * Math.PI / 2;
+				this.getRV()[free] = 0.0;
+				this.getStates()[free] = Main.ACTIVE;
+				this.getNextShoot()[free] = currentTime + 500;
+				e.setNextEnemy(currentTime + 500);
+			}
+		}
+	}
+}
+
 class Projectile {
 	int [] states;					// estados
 	double [] X;				// coordenadas x
@@ -153,72 +276,6 @@ class PlayerProjectile {
 		return p.VY;
 	}
 }
-
-class Background {
-			
-	private double [] X;
-	private double [] Y;
-	private double speed;
-	private double count;
-
-	public Background(int X, int Y, double speed, double count){
-		this.X = new double [X];
-		this.Y = new double [Y];
-		this.speed = speed;
-		this.count = count;
-	}
-	
-	public void inicializa(){                          //metodo pra inicializar o background
-		for(int i = 0; i < X.length; i++){
-			
-			X[i] = Math.random() * GameLib.WIDTH;
-			Y[i] = Math.random() * GameLib.HEIGHT;
-		}
-	}
-	
-	public void draw(Long delta, Color cor, int size){    //metodo pra desenhar o background
-		GameLib.setColor(cor);
-			count += speed * delta;
-			
-			for(int i = 0; i < X.length; i++){
-				
-				GameLib.fillRect(X[i], (Y[i] + count) % GameLib.HEIGHT, size, size);
-			}
-	}
-
-	/*Getters e Setters*/
-	public double[] get_X() {
-		return X;
-	}
-	public double[] get_Y() {
-		return Y;
-	}
-	public double get_count() {
-		return count;
-	}
-	public double get_speed() {
-		return speed;
-	}
-	public void set_X(double[] X) {
-		this.X = X;
-	}
-	public void set_Y(double[] Y) {
-		this.Y = Y;
-	}
-	public void set_count(double count) {
-		this.count = count;
-	}
-	public void set_speed(double speed) {
-		this.speed = speed;
-	}
-} 
-
-class Estrela extends Background {
-	public Estrela(int X, int Y, double speed, double count) {
-		super(X, Y, speed, count);
-	}
-}
-
 public class Main {
 	
 	/* Constantes relacionadas aos estados que os elementos   */
@@ -295,17 +352,7 @@ public class Main {
 
 		/* variáveis dos inimigos tipo 1 */
 		
-		int [] enemy1_states = new int[10];						// estados
-		double [] enemy1_X = new double[10];					// coordenadas x
-		double [] enemy1_Y = new double[10];					// coordenadas y
-		double [] enemy1_V = new double[10];					// velocidades
-		double [] enemy1_angle = new double[10];				// ângulos (indicam direção do movimento)
-		double [] enemy1_RV = new double[10];					// velocidades de rotação
-		double [] enemy1_explosion_start = new double[10];		// instantes dos inícios das explosões
-		double [] enemy1_explosion_end = new double[10];		// instantes dos finais da explosões
-		long [] enemy1_nextShoot = new long[10];				// instantes do próximo tiro
-		double enemy1_radius = 9.0;								// raio (tamanho do inimigo 1)
-		long nextEnemy1 = currentTime + 2000;					// instante em que um novo inimigo 1 deve aparecer
+		Enemy1 enemy1 = new Enemy1(new int[10], new double[10], new double[10], new double[10], new double[10], new double[10], new double[10], new double[10], 9.0, currentTime+200, new long[10]);
 		
 		/* variáveis dos inimigos tipo 2 */
 		
@@ -330,21 +377,39 @@ public class Main {
 		double [] e_projectile_VX = new double[200];			// velocidade no eixo x
 		double [] e_projectile_VY = new double[200];			// velocidade no eixo y
 		double e_projectile_radius = 2.0;						// raio (tamanho dos projéteis inimigos)
-
+		
+		/* estrelas que formam o fundo de primeiro plano */
+		
+		double [] background1_X = new double[20];
+		double [] background1_Y = new double[20];
+		double background1_speed = 0.070;
+		double background1_count = 0.0;
+		
+		/* estrelas que formam o fundo de segundo plano */
+		
+		double [] background2_X = new double[50];
+		double [] background2_Y = new double[50];
+		double background2_speed = 0.045;
+		double background2_count = 0.0;
+		
 		/* inicializações */
 		
 		for(int i = 0; i < e_projectile_states.length; i++) e_projectile_states[i] = INACTIVE;
-		for(int i = 0; i < enemy1_states.length; i++) enemy1_states[i] = INACTIVE;
+		for(int i = 0; i < enemy1.getStates().length; i++) enemy1.getStates()[i] = INACTIVE;
 		for(int i = 0; i < enemy2_states.length; i++) enemy2_states[i] = INACTIVE;
 		
-		/*Inicializando Estrelas*/
+		for(int i = 0; i < background1_X.length; i++){
+			
+			background1_X[i] = Math.random() * GameLib.WIDTH;
+			background1_Y[i] = Math.random() * GameLib.HEIGHT;
+		}
 		
-		Estrela estrela1 = new Estrela(20, 20, 0.070, 0.0);
-		Estrela estrela2 = new Estrela(50, 50, 0.045, 0.0);
-		
-		estrela1.inicializa();
-		estrela2.inicializa();
-		
+		for(int i = 0; i < background2_X.length; i++){
+			
+			background2_X[i] = Math.random() * GameLib.WIDTH;
+			background2_Y[i] = Math.random() * GameLib.HEIGHT;
+		}
+						
 		/* iniciado interface gráfica */
 		
 		GameLib.initGraphics();
@@ -401,13 +466,13 @@ public class Main {
 			
 				/* colisões player - inimigos */
 							
-				for(int i = 0; i < enemy1_states.length; i++){
+				for(int i = 0; i < enemy1.getStates().length; i++){
 					
-					double dx = enemy1_X[i] - player.getX();
-					double dy = enemy1_Y[i] - player.getY();
+					double dx = enemy1.getX()[i] - player.getX();
+					double dy = enemy1.getY()[i] - player.getY();
 					double dist = Math.sqrt(dx * dx + dy * dy);
 					
-					if(dist < (player.getRadius() + enemy1_radius) * 0.8){
+					if(dist < (player.getRadius() + enemy1.getRadius()) * 0.8){
 						player.explode(currentTime);
 					}
 				}
@@ -428,19 +493,19 @@ public class Main {
 			
 			for(int k = 0; k < player_projectile.getStates().length; k++){
 				
-				for(int i = 0; i < enemy1_states.length; i++){
+				for(int i = 0; i < enemy1.getStates().length; i++){
 										
-					if(enemy1_states[i] == ACTIVE){
+					if(enemy1.getStates()[i] == ACTIVE){
 					
-						double dx = enemy1_X[i] - player_projectile.getX()[k];
-						double dy = enemy1_Y[i] - player_projectile.getY()[k];
+						double dx = enemy1.getX()[i] - player_projectile.getX()[k];
+						double dy = enemy1.getY()[i] - player_projectile.getY()[k];
 						double dist = Math.sqrt(dx * dx + dy * dy);
 						
-						if(dist < enemy1_radius){
+						if(dist < enemy1.getRadius()){
 							
-							enemy1_states[i] = EXPLODING;
-							enemy1_explosion_start[i] = currentTime;
-							enemy1_explosion_end[i] = currentTime + 500;
+							enemy1.getStates()[i] = EXPLODING;
+							enemy1.getExplosion_start()[i] = currentTime;
+							enemy1.getExplosion_end()[i] = currentTime + 500;
 						}
 					}
 				}
@@ -507,42 +572,42 @@ public class Main {
 			
 			/* inimigos tipo 1 */
 			
-			for(int i = 0; i < enemy1_states.length; i++){
+			for(int i = 0; i < enemy1.getStates().length; i++){
 				
-				if(enemy1_states[i] == EXPLODING){
+				if(enemy1.getStates()[i] == EXPLODING){
 					
-					if(currentTime > enemy1_explosion_end[i]){
+					if(currentTime > enemy1.getExplosion_end()[i]){
 						
-						enemy1_states[i] = INACTIVE;
+						enemy1.getStates()[i] = INACTIVE;
 					}
 				}
 				
-				if(enemy1_states[i] == ACTIVE){
+				if(enemy1.getStates()[i] == ACTIVE){
 					
 					/* verificando se inimigo saiu da tela */
-					if(enemy1_Y[i] > GameLib.HEIGHT + 10) {
+					if(enemy1.getY()[i] > GameLib.HEIGHT + 10) {
 						
-						enemy1_states[i] = INACTIVE;
+						enemy1.getStates()[i] = INACTIVE;
 					}
 					else {
 					
-						enemy1_X[i] += enemy1_V[i] * Math.cos(enemy1_angle[i]) * delta;
-						enemy1_Y[i] += enemy1_V[i] * Math.sin(enemy1_angle[i]) * delta * (-1.0);
-						enemy1_angle[i] += enemy1_RV[i] * delta;
+						enemy1.getX()[i] += enemy1.getV()[i] * Math.cos(enemy1.getAngle()[i]) * delta;
+						enemy1.getY()[i] += enemy1.getV()[i] * Math.sin(enemy1.getAngle()[i]) * delta * (-1.0);
+						enemy1.getAngle()[i] += enemy1.getRV()[i] * delta;
 						
-						if(currentTime > enemy1_nextShoot[i] && enemy1_Y[i] < player.getY()){
+						if(currentTime > enemy1.getNextShoot()[i] && enemy1.getY()[i] < player.getY()){
 																							
 							int free = findFreeIndex(e_projectile_states);
 							
 							if(free < e_projectile_states.length){
 								
-								e_projectile_X[free] = enemy1_X[i];
-								e_projectile_Y[free] = enemy1_Y[i];
-								e_projectile_VX[free] = Math.cos(enemy1_angle[i]) * 0.45;
-								e_projectile_VY[free] = Math.sin(enemy1_angle[i]) * 0.45 * (-1.0);
+								e_projectile_X[free] = enemy1.getX()[i];
+								e_projectile_Y[free] = enemy1.getY()[i];
+								e_projectile_VX[free] = Math.cos(enemy1.getAngle()[i]) * 0.45;
+								e_projectile_VY[free] = Math.sin(enemy1.getAngle()[i]) * 0.45 * (-1.0);
 								e_projectile_states[free] = 1;
 								
-								enemy1_nextShoot[i] = (long) (currentTime + 200 + Math.random() * 500);
+								enemy1.getNextShoot()[i] = (long) (currentTime + 200 + Math.random() * 500);
 							}
 						}
 					}
@@ -628,22 +693,7 @@ public class Main {
 			
 			/* verificando se novos inimigos (tipo 1) devem ser "lançados" */
 			
-			if(currentTime > nextEnemy1){
-				
-				int free = findFreeIndex(enemy1_states);
-								
-				if(free < enemy1_states.length){
-					
-					enemy1_X[free] = Math.random() * (GameLib.WIDTH - 20.0) + 10.0;
-					enemy1_Y[free] = -10.0;
-					enemy1_V[free] = 0.20 + Math.random() * 0.15;
-					enemy1_angle[free] = 3 * Math.PI / 2;
-					enemy1_RV[free] = 0.0;
-					enemy1_states[free] = ACTIVE;
-					enemy1_nextShoot[free] = currentTime + 500;
-					nextEnemy1 = currentTime + 500;
-				}
-			}
+			enemy1.throwNew(currentTime);
 			
 			/* verificando se novos inimigos (tipo 2) devem ser "lançados" */
 			
@@ -697,9 +747,24 @@ public class Main {
 			
 			/* desenhando plano fundo distante */
 			
-			estrela1.draw(delta, Color.GRAY, 3);
-			estrela2.draw(delta, Color.DARK_GRAY, 2);
-
+			GameLib.setColor(Color.DARK_GRAY);
+			background2_count += background2_speed * delta;
+			
+			for(int i = 0; i < background2_X.length; i++){
+				
+				GameLib.fillRect(background2_X[i], (background2_Y[i] + background2_count) % GameLib.HEIGHT, 2, 2);
+			}
+			
+			/* desenhando plano de fundo próximo */
+			
+			GameLib.setColor(Color.GRAY);
+			background1_count += background1_speed * delta;
+			
+			for(int i = 0; i < background1_X.length; i++){
+				
+				GameLib.fillRect(background1_X[i], (background1_Y[i] + background1_count) % GameLib.HEIGHT, 3, 3);
+			}
+						
 			/* desenhando player */
 			
 			player.draw(currentTime);
@@ -731,18 +796,18 @@ public class Main {
 			
 			/* desenhando inimigos (tipo 1) */
 			
-			for(int i = 0; i < enemy1_states.length; i++){
+			for(int i = 0; i < enemy1.getStates().length; i++){
 				
-				if(enemy1_states[i] == EXPLODING){
+				if(enemy1.getStates()[i] == EXPLODING){
 					
-					double alpha = (currentTime - enemy1_explosion_start[i]) / (enemy1_explosion_end[i] - enemy1_explosion_start[i]);
-					GameLib.drawExplosion(enemy1_X[i], enemy1_Y[i], alpha);
+					double alpha = (currentTime - enemy1.getExplosion_start()[i]) / (enemy1.getExplosion_end()[i] - enemy1.getExplosion_start()[i]);
+					GameLib.drawExplosion(enemy1.getX()[i], enemy1.getY()[i], alpha);
 				}
 				
-				if(enemy1_states[i] == ACTIVE){
+				if(enemy1.getStates()[i] == ACTIVE){
 			
 					GameLib.setColor(Color.CYAN);
-					GameLib.drawCircle(enemy1_X[i], enemy1_Y[i], enemy1_radius);
+					GameLib.drawCircle(enemy1.getX()[i], enemy1.getY()[i], enemy1.getRadius());
 				}
 			}
 			
